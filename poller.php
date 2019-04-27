@@ -555,13 +555,27 @@ while ($poller_runs_completed < $poller_runs) {
 			$total_procs    = $concurrent_processes * $max_threads;
 			chdir(dirname(read_config_option('path_spine')));
 		} elseif ($config['cacti_server_os'] == 'unix') {
+			// prepend the php.ini file in use, so we stay in the same environment
+			$ini_file = php_ini_loaded_file();
+			if($ini_file) {
+				$ini_file = '-c ' . $ini_file . ' ';
+			}else{
+				$ini_file = '';
+			}
 			$command_string = read_config_option('path_php_binary');
-			$extra_args     = '-q "' . $config['base_path'] . '/cmd.php"';
+			$extra_args     = $ini_file . '-q "' . $config['base_path'] . '/cmd.php"';
 			$method         = 'cmd.php';
 			$total_procs    = $concurrent_processes;
 		} else {
 			$command_string = read_config_option('path_php_binary');
-			$extra_args     = '-q "' . strtolower($config['base_path'] . '/cmd.php"');
+			// prepend the php.ini file in use, so we stay in the same environment
+			$ini_file = php_ini_loaded_file();
+			if($ini_file) {
+				$ini_file = '-c ' . $ini_file . ' ';
+			}else{
+				$ini_file = '';
+			}
+			$extra_args     = $ini_file . '-q "' . strtolower($config['base_path'] . '/cmd.php"');
 			$method         = 'cmd.php';
 			$total_procs    = $concurrent_processes;
 		}
@@ -707,7 +721,14 @@ while ($poller_runs_completed < $poller_runs) {
 
 		if ($commands > 0) {
 			$command_string = read_config_option('path_php_binary');
-			$extra_args = '-q "' . $config['base_path'] . "/poller_commands.php\" --poller=$poller_id";
+			// prepend the php.ini file in use, so we stay in the same environment
+			$ini_file = php_ini_loaded_file();
+			if($ini_file) {
+				$ini_file = '-c ' . $ini_file . ' ';
+			}else{
+				$ini_file = '';
+			}
+			$extra_args = $ini_file . '-q "' . $config['base_path'] . "/poller_commands.php\" --poller=$poller_id";
 			exec_background($command_string, $extra_args);
 		} else {
 			/* no re-index or Rechache present on this run
@@ -848,7 +869,14 @@ function poller_replicate_check() {
 
 	foreach($pollers as $poller) {
 		$command_string = read_config_option('path_php_binary');
-		$extra_args = '-q ' . $config['base_path'] . '/cli/poller_replicate.php --poller=' . $poller['id'];
+		// prepend the php.ini file in use, so we stay in the same environment
+		$ini_file = php_ini_loaded_file();
+		if($ini_file) {
+			$ini_file = '-c ' . $ini_file . ' ';
+		}else{
+			$ini_file = '';
+		}
+		$extra_args = $ini_file . '-q ' . $config['base_path'] . '/cli/poller_replicate.php --poller=' . $poller['id'];
 		exec_background($command_string, $extra_args);
 	}
 }
@@ -955,7 +983,14 @@ function spikekill_poller_bottom () {
     include_once($config['base_path'] . '/lib/poller.php');
 
     $command_string = read_config_option('path_php_binary');
-    $extra_args = '-q ' . $config['base_path'] . '/poller_spikekill.php';
+	// prepend the php.ini file in use, so we stay in the same environment
+	$ini_file = php_ini_loaded_file();
+	if($ini_file) {
+		$ini_file = '-c ' . $ini_file . ' ';
+	}else{
+		$ini_file = '';
+	}
+    $extra_args = $ini_file . '-q ' . $config['base_path'] . '/poller_spikekill.php';
     exec_background($command_string, $extra_args);
 }
 

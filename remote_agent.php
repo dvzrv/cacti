@@ -452,7 +452,14 @@ function run_remote_discovery() {
 		$options .= ' --debug';
 	}
 
-	exec_background($php, '-q ' . $path . $options);
+	// prepend the php.ini file in use, so we stay in the same environment
+	$ini_file = php_ini_loaded_file();
+	if($ini_file) {
+		$ini_file = '-c ' . $ini_file . ' ';
+	}else{
+		$ini_file = '';
+	}
+	exec_background($php, $ini_file . '-q ' . $path . $options);
 
 	sleep(2);
 

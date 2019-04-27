@@ -215,7 +215,14 @@ if ($master) {
 		foreach($networks as $network) {
 			if (api_automation_is_time_to_start($network['id']) || $force) {
 				automation_debug("Launching Network Master for '" . $network['name'] . "'\n");
-				exec_background(read_config_option('path_php_binary'), '-q ' . read_config_option('path_webroot') . '/poller_automation.php --poller=' . $poller_id . ' --network=' . $network['id'] . ($force ? ' --force':'') . ($debug ? ' --debug':''));
+				// prepend the php.ini file in use, so we stay in the same environment
+				$ini_file = php_ini_loaded_file();
+				if($ini_file) {
+					$ini_file = '-c ' . $ini_file . ' ';
+				}else{
+					$ini_file = '';
+				}
+				exec_background(read_config_option('path_php_binary'), $ini_file . '-q ' . read_config_option('path_webroot') . '/poller_automation.php --poller=' . $poller_id . ' --network=' . $network['id'] . ($force ? ' --force':'') . ($debug ? ' --debug':''));
 				$launched++;
 			} else {
 				automation_debug("Not time to Run Discovery for '" . $network['name'] . "'\n");
@@ -288,7 +295,14 @@ if (!$master && $thread == 0) {
 	$curthread = 1;
 	while($curthread <= $threads) {
 		automation_debug("Launching Thread $curthread\n");
-		exec_background(read_config_option('path_php_binary'), '-q ' . read_config_option('path_webroot') . '/poller_automation.php --poller=' . $poller_id . " --thread=$curthread --network=$network_id" . ($force ? ' --force':'') . ($debug ? ' --debug':''));
+		// prepend the php.ini file in use, so we stay in the same environment
+		$ini_file = php_ini_loaded_file();
+		if($ini_file) {
+			$ini_file = '-c ' . $ini_file . ' ';
+		}else{
+			$ini_file = '';
+		}
+		exec_background(read_config_option('path_php_binary'), $ini_file . '-q ' . read_config_option('path_webroot') . '/poller_automation.php --poller=' . $poller_id . " --thread=$curthread --network=$network_id" . ($force ? ' --force':'') . ($debug ? ' --debug':''));
 		$curthread++;
 	}
 

@@ -132,7 +132,14 @@ function api_networks_discover($network_id, $discover_debug) {
 		if (!$running) {
 			if ($config['poller_id'] == $poller_id) {
 				$args_debug = ($discover_debug) ? ' --debug' : '';
-				exec_background(read_config_option('path_php_binary'), '-q ' . read_config_option('path_webroot') . "/poller_automation.php --network=$network_id --force" . $args_debug);
+				// prepend the php.ini file in use, so we stay in the same environment
+				$ini_file = php_ini_loaded_file();
+				if($ini_file) {
+					$ini_file = '-c ' . $ini_file . ' ';
+				}else{
+					$ini_file = '';
+				}
+				exec_background(read_config_option('path_php_binary'), $ini_file . '-q ' . read_config_option('path_webroot') . "/poller_automation.php --network=$network_id --force" . $args_debug);
 			} else {
 				$args_debug = ($discover_debug) ? '&debug=true' : '';
 				$hostname = db_fetch_cell_prepared('SELECT hostname

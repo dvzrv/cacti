@@ -776,14 +776,21 @@ function dsstats_poller_bottom () {
 		chdir($config['base_path']);
 
 		$command_string = read_config_option('path_php_binary');
+		// prepend the php.ini file in use, so we stay in the same environment
+		$ini_file = php_ini_loaded_file();
+		if($ini_file) {
+			$ini_file = '-c ' . $ini_file . ' ';
+		}else{
+			$ini_file = '';
+		}
 		if (read_config_option('path_dsstats_log') != '') {
 			if ($config['cacti_server_os'] == 'unix') {
-				$extra_args = '-q ' . $config['base_path'] . '/poller_dsstats.php >> ' . read_config_option('path_dsstats_log') . ' 2>&1';
+				$extra_args = $ini_file . '-q ' . $config['base_path'] . '/poller_dsstats.php >> ' . read_config_option('path_dsstats_log') . ' 2>&1';
 			} else {
-				$extra_args = '-q ' . $config['base_path'] . '/poller_dsstats.php >> ' . read_config_option('path_dsstats_log');
+				$extra_args = $ini_file . '-q ' . $config['base_path'] . '/poller_dsstats.php >> ' . read_config_option('path_dsstats_log');
 			}
 		} else {
-			$extra_args = '-q ' . $config['base_path'] . '/poller_dsstats.php';
+			$extra_args = $ini_file . '-q ' . $config['base_path'] . '/poller_dsstats.php';
 		}
 
 		exec_background($command_string, $extra_args);

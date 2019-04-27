@@ -43,7 +43,14 @@ function upgrade_to_0_8_7h() {
 
 	/* update the reindex cache, as we now introduced more options for "index count changed" */
 	$command_string = read_config_option("path_php_binary");
-	$extra_args = "-q \"" . $config["base_path"] . "/cli/poller_reindex_hosts.php\" --id=all";
+	// prepend the php.ini file in use, so we stay in the same environment
+	$ini_file = php_ini_loaded_file();
+	if($ini_file) {
+		$ini_file = '-c ' . $ini_file . ' ';
+	}else{
+		$ini_file = '';
+	}
+	$extra_args = $ini_file . "-q \"" . $config["base_path"] . "/cli/poller_reindex_hosts.php\" --id=all";
 	exec_background($command_string, "$extra_args");
 	cacti_log(__FUNCTION__ . " running $command_string $extra_args", false, "UPGRADE");
 }

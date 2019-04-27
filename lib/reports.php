@@ -1464,7 +1464,14 @@ function reports_poller_bottom () {
 	include_once($config['base_path'] . '/lib/poller.php');
 
 	$command_string = read_config_option('path_php_binary');
-	$extra_args = '-q ' . $config['base_path'] . '/poller_reports.php';
+	// prepend the php.ini file in use, so we stay in the same environment
+	$ini_file = php_ini_loaded_file();
+	if($ini_file) {
+		$ini_file = '-c ' . $ini_file . ' ';
+	}else{
+		$ini_file = '';
+	}
+	$extra_args = $ini_file . '-q ' . $config['base_path'] . '/poller_reports.php';
 	exec_background($command_string, $extra_args);
 }
 

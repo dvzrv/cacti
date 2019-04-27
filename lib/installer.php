@@ -2498,7 +2498,14 @@ class Installer implements JsonSerializable {
 
 		if ($backgroundNeeded) {
 			$php = read_config_option('path_php_binary', true);
-			$php_file = $config['base_path'] . '/install/background.php ' . $backgroundTime;
+			// prepend the php.ini file in use, so we stay in the same environment
+			$ini_file = php_ini_loaded_file();
+			if($ini_file) {
+				$ini_file = '-c ' . $ini_file . ' ';
+			}else{
+				$ini_file = '';
+			}
+			$php_file = $ini_file . $config['base_path'] . '/install/background.php ' . $backgroundTime;
 
 			log_install_always('', 'Spawning background process: ' . $php . ' ' . $php_file);
 			exec_background($php, $php_file);

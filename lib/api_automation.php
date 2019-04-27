@@ -2834,7 +2834,14 @@ function automation_poller_bottom() {
 		$command_string = 'php';
 	}
 
-	$extra_args = ' -q ' . $config['base_path'] . '/poller_automation.php -M';
+	// prepend the php.ini file in use, so we stay in the same environment
+	$ini_file = php_ini_loaded_file();
+	if($ini_file) {
+		$ini_file = '-c ' . $ini_file . ' ';
+	}else{
+		$ini_file = '';
+	}
+	$extra_args = $ini_file . ' -q ' . $config['base_path'] . '/poller_automation.php -M';
 
 	exec_background($command_string, $extra_args);
 }

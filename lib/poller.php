@@ -1550,7 +1550,14 @@ function poller_recovery_flush_boost($poller_id) {
 	if ($poller_id > 1) {
 		if ($config['connection'] == 'recovery') {
 			$command_string = read_config_option('path_php_binary');
-			$extra_args = '-q ' . $config['base_path'] . '/poller_recovery.php';
+			// prepend the php.ini file in use, so we stay in the same environment
+			$ini_file = php_ini_loaded_file();
+			if($ini_file) {
+				$ini_file = '-c ' . $ini_file . ' ';
+			}else{
+				$ini_file = '';
+			}
+			$extra_args = $ini_file . '-q ' . $config['base_path'] . '/poller_recovery.php';
 			exec_background($command_string, $extra_args);
 		}
 	}
