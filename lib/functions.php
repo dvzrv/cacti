@@ -3996,7 +3996,14 @@ function poller_maintenance () {
 		$command_string = 'php';
 	}
 
-	$extra_args = ' -q ' . $config['base_path'] . '/poller_maintenance.php';
+	// prepend the php.ini file in use, so we stay in the same environment
+	$ini_file = php_ini_loaded_file();
+	if($ini_file) {
+		$ini_file = '-c ' . $ini_file . ' ';
+	}else{
+		$ini_file = '';
+	}
+	$extra_args = $ini_file . ' -q ' . $config['base_path'] . '/poller_maintenance.php';
 
 	exec_background($command_string, $extra_args);
 }
